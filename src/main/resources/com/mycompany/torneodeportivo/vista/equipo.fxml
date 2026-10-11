@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="640.0" prefWidth="1100.0" stylesheets="@estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.torneodeportivo.controlador.EquipoController">
+   <top>
+      <HBox styleClass="barra-titulo">
+         <children>
+            <Label styleClass="titulo" text="Equipos universitarios" />
+         </children>
+      </HBox>
+   </top>
+   <left>
+      <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefWidth="320.0">
+         <content>
+            <VBox styleClass="panel-form">
+               <children>
+                  <Label text="Nombre del equipo" />
+                  <TextField fx:id="txtNombre" />
+                  <Label text="Universidad" />
+                  <TextField fx:id="txtUniversidad" />
+                  <Label text="Entrenador" />
+                  <TextField fx:id="txtEntrenador" />
+                  <Label text="Categoría" />
+                  <ComboBox fx:id="cmbCategoria" maxWidth="1.7976931348623157E308" promptText="Selecciona una categoría" />
+                  <Label text="Estado" />
+                  <ComboBox fx:id="cmbEstado" maxWidth="1.7976931348623157E308" promptText="Selecciona un estado" />
+                  <Label text="Logo del equipo" />
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <StackPane prefHeight="100.0" prefWidth="100.0" styleClass="vista-previa">
+                           <children>
+                              <ImageView fx:id="imgLogo" fitHeight="96.0" fitWidth="96.0" pickOnBounds="true" preserveRatio="true" />
+                           </children>
+                        </StackPane>
+                        <Button mnemonicParsing="false" onAction="#seleccionarLogo" styleClass="btn-neutro" text="Seleccionar..." />
+                     </children>
+                  </HBox>
+                  <FlowPane hgap="6.0" vgap="6.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#nuevo" styleClass="btn-neutro" text="Nuevo" />
+                        <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#guardar" styleClass="btn-principal" text="Guardar" />
+                        <Button mnemonicParsing="false" onAction="#editar" styleClass="btn-neutro" text="Editar" />
+                        <Button mnemonicParsing="false" onAction="#eliminar" styleClass="btn-peligro" text="Eliminar" />
+                        <Button mnemonicParsing="false" onAction="#limpiar" styleClass="btn-neutro" text="Limpiar" />
+                     </children>
+                     <padding>
+                        <Insets top="8.0" />
+                     </padding>
+                  </FlowPane>
+               </children>
+            </VBox>
+         </content>
+      </ScrollPane>
+   </left>
+   <center>
+      <TableView fx:id="tabla" BorderPane.alignment="CENTER">
+         <columns>
+            <TableColumn fx:id="colId" prefWidth="45.0" text="ID" />
+            <TableColumn fx:id="colNombre" prefWidth="150.0" text="Equipo" />
+            <TableColumn fx:id="colUniversidad" prefWidth="170.0" text="Universidad" />
+            <TableColumn fx:id="colEntrenador" prefWidth="130.0" text="Entrenador" />
+            <TableColumn fx:id="colCategoria" prefWidth="110.0" text="Categoría" />
+            <TableColumn fx:id="colEstado" prefWidth="100.0" text="Estado" />
+         </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+   </center>
+</BorderPane>

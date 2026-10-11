@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane prefHeight="700.0" prefWidth="1100.0" styleClass="fondo-login" stylesheets="@estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.torneodeportivo.controlador.LoginController">
+   <children>
+      <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="360.0" spacing="8.0" styleClass="tarjeta-login">
+         <children>
+            <Label styleClass="titulo-login" text="⚽ Torneo Universitario" />
+            <Label text="Inicia sesión como administrador" />
+            <Label text="Usuario">
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </Label>
+            <TextField fx:id="txtUsuario" promptText="Ej. admin.equipos" />
+            <Label text="Contraseña" />
+            <PasswordField fx:id="txtContrasena" onAction="#iniciarSesion" />
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#iniciarSesion" styleClass="btn-principal" text="Iniciar sesión">
+               <VBox.margin>
+                  <Insets top="12.0" />
+               </VBox.margin>
+            </Button>
+            <Label text="Usuarios de prueba (contraseña 1234): admin.equipos, admin.partidos, admin.torneo" wrapText="true">
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </Label>
+         </children>
+      </VBox>
+   </children>
+</StackPane>
