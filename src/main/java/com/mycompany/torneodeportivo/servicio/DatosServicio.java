@@ -25,7 +25,7 @@ public class DatosServicio {
     private final ObservableList<Jugador> jugadores = FXCollections.observableArrayList();
     private final ObservableList<Partido> partidos = FXCollections.observableArrayList();
     private final ObservableList<Posicion> posiciones = FXCollections.observableArrayList();
-    private final List<Administrador> administradores = new ArrayList<>();
+    private final ObservableList<Administrador> administradores = FXCollections.observableArrayList();
 
     private int sigCategoria = 1, sigEquipo = 1, sigJugador = 1,
                 sigPartido = 1, sigResultado = 1, sigPosicion = 1;
@@ -37,6 +37,7 @@ public class DatosServicio {
                 "admin.partidos", "1234", "Matutino"));
         administradores.add(new AdministradorTorneo(3, "Sofía Ruiz", 38, "sofia@uni.mx",
                 "admin.torneo", "1234", "Total"));
+        cargarDatosDemo();
     }
 
     // ---------- Acceso a las listas ----------
@@ -45,6 +46,31 @@ public class DatosServicio {
     public ObservableList<Jugador> getJugadores() { return jugadores; }
     public ObservableList<Partido> getPartidos() { return partidos; }
     public ObservableList<Posicion> getPosiciones() { return posiciones; }
+    public ObservableList<Administrador> getAdministradores() { return administradores; }
+
+
+    /** Datos de demostración en memoria para poder probar las pantallas (no hay persistencia). */
+    private void cargarDatosDemo() {
+        Categoria sub20 = agregarCategoria("Sub-20", 17, 20, EstadoCategoria.ABIERTA);
+        Categoria libre = agregarCategoria("Libre", 21, 30, EstadoCategoria.ABIERTA);
+
+        Equipo leones = agregarEquipo("Leones Negros", "Universidad de Guadalajara", "Carlos Méndez", sub20, null, EstadoEquipo.INSCRITO);
+        Equipo halcones = agregarEquipo("Halcones UTJ", "Universidad Tecnológica de Jalisco", "Laura Pérez", sub20, null, EstadoEquipo.INSCRITO);
+        Equipo titanes = agregarEquipo("Titanes", "Universidad Panamericana", "Jorge Ramírez", libre, null, EstadoEquipo.INSCRITO);
+        Equipo dragones = agregarEquipo("Dragones", "Universidad del Valle de Atemajac", "Marta Solís", libre, null, EstadoEquipo.INSCRITO);
+
+        agregarJugador("Diego Ramírez", 18, 9, PosicionCampo.DELANTERO, leones, null, EstadoJugador.HABILITADO);
+        agregarJugador("Mateo Hernández", 19, 1, PosicionCampo.PORTERO, leones, null, EstadoJugador.HABILITADO);
+        agregarJugador("Luis Ortega", 20, 10, PosicionCampo.MEDIOCAMPISTA, halcones, null, EstadoJugador.HABILITADO);
+        agregarJugador("Andrés Castro", 18, 4, PosicionCampo.DEFENSA, halcones, null, EstadoJugador.LESIONADO);
+        agregarJugador("Ricardo Flores", 24, 7, PosicionCampo.DELANTERO, titanes, null, EstadoJugador.HABILITADO);
+        agregarJugador("Pablo Núñez", 22, 3, PosicionCampo.DEFENSA, titanes, null, EstadoJugador.HABILITADO);
+        agregarJugador("Emilio Vargas", 27, 5, PosicionCampo.MEDIOCAMPISTA, dragones, null, EstadoJugador.SANCIONADO);
+
+        Partido jugado = agregarPartido(leones, halcones, LocalDate.now().minusDays(2), LocalTime.of(16, 0), "Cancha 1", EstadoPartido.FINALIZADO);
+        registrarResultado(jugado, 2, 1, EstadoResultado.CONFIRMADO);
+        agregarPartido(titanes, dragones, LocalDate.now().plusDays(3), LocalTime.of(18, 30), "Estadio Universitario", EstadoPartido.PROGRAMADO);
+    }
 
     public Administrador autenticar(String usuario, String contrasena) {
         for (Administrador a : administradores) {

@@ -6,7 +6,7 @@
 .texto-usuario { -fx-text-fill: #b0bec5; -fx-padding: 0 0 0 15; }
 .btn-menu { -fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand; }
 .btn-menu:hover { -fx-background-color: #455a64; }
-.panel-form { -fx-background-color: #f1f8e9; -fx-padding: 15; -fx-spacing: 8; }
+.panel-form { -fx-background-color: #f1f8e9; -fx-padding: 15; -fx-spacing: 5; }
 .subtitulo { -fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #1b5e20; -fx-padding: 10 0 0 0; }
 .scroll-pane { -fx-background-color: #f1f8e9; }
 .vista-previa { -fx-border-color: #9e9e9e; -fx-border-style: dashed; -fx-background-color: white; }
@@ -19,3 +19,7 @@
 .btn-principal { -fx-background-color: #2e7d32; -fx-text-fill: white; }
 .btn-peligro { -fx-background-color: #c62828; -fx-text-fill: white; }
 .btn-neutro { -fx-background-color: #607d8b; -fx-text-fill: white; }
+.msg-error { -fx-text-fill: #c62828; -fx-font-size: 11.5px; }
+.campo-invalido { -fx-border-color: #c62828; -fx-border-radius: 3; }
+.campo-valido { -fx-border-color: #2e7d32; -fx-border-radius: 3; }
+.btn-validar { -fx-background-color: #1565c0; -fx-text-fill: white; }

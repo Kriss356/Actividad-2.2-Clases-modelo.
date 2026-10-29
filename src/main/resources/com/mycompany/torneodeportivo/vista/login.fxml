@@ -23,6 +23,7 @@
                   <Insets top="12.0" />
                </VBox.margin>
             </Button>
+            <Button fx:id="btnSalir" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#salir" styleClass="btn-peligro" text="Salir de la aplicación" />
             <Label text="Usuarios de prueba (contraseña 1234): admin.equipos, admin.partidos, admin.torneo" wrapText="true">
                <padding>
                   <Insets top="10.0" />

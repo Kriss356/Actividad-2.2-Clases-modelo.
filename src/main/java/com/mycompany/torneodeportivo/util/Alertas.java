@@ -5,6 +5,7 @@ import javafx.scene.control.ButtonType;
 
 public class Alertas {
     public static void info(String mensaje) { mostrar(Alert.AlertType.INFORMATION, "Operación exitosa", mensaje); }
+    public static void informacion(String titulo, String mensaje) { mostrar(Alert.AlertType.INFORMATION, titulo, mensaje); }
     public static void error(String mensaje) { mostrar(Alert.AlertType.ERROR, "Error", mensaje); }
 
     public static boolean confirmar(String mensaje) {

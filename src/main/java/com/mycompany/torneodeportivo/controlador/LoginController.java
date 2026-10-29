@@ -7,6 +7,7 @@ import com.mycompany.torneodeportivo.util.Alertas;
 import com.mycompany.torneodeportivo.util.Sesion;
 import com.mycompany.torneodeportivo.util.Validador;
 import java.io.IOException;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -32,6 +33,14 @@ public class LoginController {
             Alertas.error(ex.getMessage());
         } catch (IOException ex) {
             Alertas.error("No se pudo abrir el menú: " + ex.getMessage());
+        }
+    }
+
+    /** Cierra la aplicación completa, previa confirmación del usuario. */
+    @FXML
+    private void salir() {
+        if (Alertas.confirmar("¿Deseas cerrar la aplicación?")) {
+            Platform.exit();
         }
     }
 }

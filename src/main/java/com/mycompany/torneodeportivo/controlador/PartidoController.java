@@ -1,50 +1,53 @@
 package com.mycompany.torneodeportivo.controlador;
 
-import com.mycompany.torneodeportivo.modelo.*;
+import com.mycompany.torneodeportivo.modelo.Equipo;
+import com.mycompany.torneodeportivo.modelo.EstadoPartido;
+import com.mycompany.torneodeportivo.modelo.EstadoResultado;
+import com.mycompany.torneodeportivo.modelo.Partido;
 import com.mycompany.torneodeportivo.servicio.DatosServicio;
 import com.mycompany.torneodeportivo.util.Alertas;
+import com.mycompany.torneodeportivo.util.CampoValidado;
 import com.mycompany.torneodeportivo.util.Convertidores;
-import com.mycompany.torneodeportivo.util.Sesion;
-import com.mycompany.torneodeportivo.util.Validador;
+import com.mycompany.torneodeportivo.util.GestorFormulario;
+import com.mycompany.torneodeportivo.util.Reglas;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class PartidoController {
+public class PartidoController extends FormularioBase<Partido> {
 
-    @FXML private ScrollPane panelForm;
-    @FXML private TableView<Partido> tabla;
     @FXML private TableColumn<Partido, Integer> colId;
-    @FXML private TableColumn<Partido, String> colLocal;
-    @FXML private TableColumn<Partido, String> colVisitante;
+    @FXML private TableColumn<Partido, String> colLocal, colVisitante, colLugar, colMarcador, colGanador;
     @FXML private TableColumn<Partido, LocalDate> colFecha;
     @FXML private TableColumn<Partido, LocalTime> colHora;
-    @FXML private TableColumn<Partido, String> colLugar;
     @FXML private TableColumn<Partido, EstadoPartido> colEstado;
-    @FXML private TableColumn<Partido, String> colMarcador;
-    @FXML private TableColumn<Partido, String> colGanador;
 
-    @FXML private ComboBox<Equipo> cmbLocal;
-    @FXML private ComboBox<Equipo> cmbVisitante;
+    @FXML private ComboBox<Equipo> cmbLocal, cmbVisitante;
     @FXML private DatePicker dpFecha;
-    @FXML private TextField txtHora;
-    @FXML private TextField txtLugar;
+    @FXML private TextField txtHora, txtLugar;
     @FXML private ComboBox<EstadoPartido> cmbEstado;
-    @FXML private TextField txtGolesLocal;
-    @FXML private TextField txtGolesVisitante;
-    @FXML private ComboBox<EstadoResultado> cmbEstadoResultado;
-    @FXML private Button btnGuardar;
+    @FXML private Label errLocal, errVisitante, errFecha, errHora, errLugar, errEstado;
 
-    private final DatosServicio servicio = DatosServicio.getInstancia();
-    private Partido enEdicion;
+    // Subformulario del resultado (se valida por separado)
+    @FXML private TextField txtGolesLocal, txtGolesVisitante;
+    @FXML private ComboBox<EstadoResultado> cmbEstadoResultado;
+    @FXML private Label errGolesLocal, errGolesVisitante, errEstadoResultado;
+    @FXML private Button btnRegistrar;
+
+    private final GestorFormulario gestorResultado = new GestorFormulario(this::actualizarBotones);
 
     @FXML
     private void initialize() {
+        DatosServicio servicio = DatosServicio.getInstancia();
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colLocal.setCellValueFactory(new PropertyValueFactory<>("nombreLocal"));
         colVisitante.setCellValueFactory(new PropertyValueFactory<>("nombreVisitante"));
@@ -55,129 +58,105 @@ public class PartidoController {
         colMarcador.setCellValueFactory(new PropertyValueFactory<>("marcador"));
         colGanador.setCellValueFactory(d -> new SimpleStringProperty(
                 d.getValue().getResultado() == null ? "—" : d.getValue().getResultado().getGanadorTexto()));
-
         tabla.setItems(servicio.getPartidos());
+
         cmbLocal.setItems(servicio.getEquipos());
         cmbLocal.setConverter(Convertidores.equipos());
         cmbVisitante.setItems(servicio.getEquipos());
         cmbVisitante.setConverter(Convertidores.equipos());
         cmbEstado.setItems(FXCollections.observableArrayList(EstadoPartido.values()));
         cmbEstadoResultado.setItems(FXCollections.observableArrayList(EstadoResultado.values()));
+        dpFecha.setEditable(false); // la fecha se elige en el calendario
 
-        // Solo el AdministradorPartidos puede modificar; el AdministradorTorneo únicamente consulta
-        boolean puedeEditar = Sesion.esPartidos();
-        panelForm.setVisible(puedeEditar);
-        panelForm.setManaged(puedeEditar);
-        limpiar();
-    }
-
-    @FXML
-    private void nuevo() { limpiar(); }
-
-    @FXML
-    private void guardar() {
-        try {
-            Equipo local = Validador.seleccion(cmbLocal.getValue(), "Equipo local");
-            Equipo visitante = Validador.seleccion(cmbVisitante.getValue(), "Equipo visitante");
-            LocalDate fecha = Validador.seleccion(dpFecha.getValue(), "Fecha");
-            LocalTime hora = leerHora(txtHora.getText());
-            String lugar = Validador.texto(txtLugar.getText(), "Lugar");
-            EstadoPartido estado = Validador.seleccion(cmbEstado.getValue(), "Estado");
-
-            if (enEdicion == null) {
-                servicio.agregarPartido(local, visitante, fecha, hora, lugar, estado);
-                Alertas.info("Partido programado correctamente.");
-            } else {
-                servicio.actualizarPartido(enEdicion, local, visitante, fecha, hora, lugar, estado);
-                Alertas.info("Partido actualizado correctamente.");
+        // Formulario del partido
+        gestor.agregar(cmbLocal, errLocal, cmbLocal.valueProperty(), Reglas.seleccion(cmbLocal.valueProperty()));
+        CampoValidado visitante = gestor.agregar(cmbVisitante, errVisitante, cmbVisitante.valueProperty(), () -> {
+            Equipo v = cmbVisitante.getValue();
+            Equipo l = cmbLocal.getValue();
+            if (v == null) return "Selecciona una opción.";
+            if (l != null && v.equals(l)) return "El visitante debe ser distinto del local.";
+            if (l != null && !v.getCategoria().equals(l.getCategoria())) {
+                return "Debe ser de la misma categoría que el local (" + l.getNombreCategoria() + ").";
             }
-            tabla.refresh();
-            limpiar();
-        } catch (IllegalArgumentException ex) {
-            Alertas.error(ex.getMessage());
-        }
+            return null;
+        });
+        gestor.revalidarCuando(visitante, cmbLocal.valueProperty()); // si cambia el local, se revisa el visitante
+        gestor.agregar(dpFecha, errFecha, dpFecha.valueProperty(), Reglas.fecha(dpFecha.valueProperty()));
+        gestor.agregarTexto(txtHora, errHora, Reglas.hora(txtHora), Reglas.CAR_HORA, 5, Reglas.MSG_HORA);
+        gestor.agregarTexto(txtLugar, errLugar, Reglas.textoGeneral(txtLugar, 3),
+                Reglas.CAR_TEXTO, 40, Reglas.MSG_TEXTO);
+        gestor.agregar(cmbEstado, errEstado, cmbEstado.valueProperty(), Reglas.seleccion(cmbEstado.valueProperty()));
+
+        // Subformulario del resultado
+        gestorResultado.agregarTexto(txtGolesLocal, errGolesLocal, Reglas.entero(txtGolesLocal, 0, 30),
+                Reglas.CAR_ENTERO, 2, Reglas.MSG_ENTERO);
+        gestorResultado.agregarTexto(txtGolesVisitante, errGolesVisitante, Reglas.entero(txtGolesVisitante, 0, 30),
+                Reglas.CAR_ENTERO, 2, Reglas.MSG_ENTERO);
+        gestorResultado.agregar(cmbEstadoResultado, errEstadoResultado, cmbEstadoResultado.valueProperty(),
+                Reglas.seleccion(cmbEstadoResultado.valueProperty()));
+        tabla.getSelectionModel().selectedItemProperty().addListener((obs, antes, ahora) -> actualizarBotones());
+
+        iniciarFormulario();
     }
 
-    @FXML
-    private void editar() {
-        Partido sel = tabla.getSelectionModel().getSelectedItem();
-        if (sel == null) {
-            Alertas.error("Selecciona un partido de la tabla para editarlo.");
-            return;
-        }
-        enEdicion = sel;
-        cmbLocal.setValue(sel.getEquipoLocal());
-        cmbVisitante.setValue(sel.getEquipoVisitante());
-        dpFecha.setValue(sel.getFecha());
-        txtHora.setText(sel.getHora().toString());
-        txtLugar.setText(sel.getLugar());
-        cmbEstado.setValue(sel.getEstado());
-        if (sel.getResultado() != null) {
-            txtGolesLocal.setText(String.valueOf(sel.getResultado().getGolesLocal()));
-            txtGolesVisitante.setText(String.valueOf(sel.getResultado().getGolesVisitante()));
-            cmbEstadoResultado.setValue(sel.getResultado().getEstado());
-        }
-        btnGuardar.setText("Actualizar");
-    }
-
-    @FXML
-    private void eliminar() {
-        Partido sel = tabla.getSelectionModel().getSelectedItem();
-        if (sel == null) {
-            Alertas.error("Selecciona un partido de la tabla para eliminarlo.");
-            return;
-        }
-        if (!Alertas.confirmar("¿Eliminar el partido " + sel.getNombreLocal() + " vs " + sel.getNombreVisitante() + "?")) return;
-        servicio.eliminarPartido(sel);
-        Alertas.info("Partido eliminado correctamente. La tabla de posiciones fue recalculada.");
-        limpiar();
-    }
-
+    /** Registrar resultado: solo comprueba los datos; en esta actividad no se guarda nada. */
     @FXML
     private void registrarResultado() {
-        try {
-            Partido sel = tabla.getSelectionModel().getSelectedItem();
-            if (sel == null) {
-                throw new IllegalArgumentException("Selecciona en la tabla el partido al que quieres registrar el resultado.");
-            }
-            if (sel.getEstado() == EstadoPartido.SUSPENDIDO) {
-                throw new IllegalArgumentException("No se puede registrar el resultado de un partido suspendido.");
-            }
-            int gl = Validador.entero(txtGolesLocal.getText(), "Goles del local", 0, 30);
-            int gv = Validador.entero(txtGolesVisitante.getText(), "Goles del visitante", 0, 30);
-            EstadoResultado er = Validador.seleccion(cmbEstadoResultado.getValue(), "Estado del resultado");
-
-            servicio.registrarResultado(sel, gl, gv, er);
-            Alertas.info("Resultado registrado. El partido pasó a Finalizado y la tabla de posiciones se actualizó.");
-            tabla.refresh();
-            limpiar();
-        } catch (IllegalArgumentException ex) {
-            Alertas.error(ex.getMessage());
+        if (gestorResultado.validarTodo()) {
+            Alertas.informacion("Validación correcta",
+                    "Los datos del resultado cumplen con las validaciones.\n\n"
+                    + "En esta actividad no se guarda, modifica ni elimina información.");
+        } else {
+            gestorResultado.enfocarPrimerInvalido();
         }
     }
 
-    @FXML
-    private void limpiar() {
+    @Override
+    protected void actualizarBotones() {
+        super.actualizarBotones();
+        if (btnRegistrar != null) {
+            btnRegistrar.setDisable(tabla.getSelectionModel().getSelectedItem() == null || !gestorResultado.esValido());
+        }
+    }
+
+    @Override
+    protected void limpiarCampos() {
         cmbLocal.getSelectionModel().clearSelection();
         cmbVisitante.getSelectionModel().clearSelection();
         dpFecha.setValue(null);
         txtHora.clear();
         txtLugar.clear();
         cmbEstado.getSelectionModel().clearSelection();
-        txtGolesLocal.clear();
-        txtGolesVisitante.clear();
-        cmbEstadoResultado.getSelectionModel().clearSelection();
-        tabla.getSelectionModel().clearSelection();
-        enEdicion = null;
-        btnGuardar.setText("Guardar");
+        gestorResultado.silenciar(() -> {
+            txtGolesLocal.clear();
+            txtGolesVisitante.clear();
+            cmbEstadoResultado.getSelectionModel().clearSelection();
+        });
     }
 
-    private LocalTime leerHora(String texto) {
-        String t = Validador.texto(texto, "Hora");
-        try {
-            return LocalTime.parse(t);
-        } catch (DateTimeParseException ex) {
-            throw new IllegalArgumentException("La hora debe tener el formato HH:mm, por ejemplo 16:30.");
-        }
+    @Override
+    protected void cargarCampos(Partido p) {
+        cmbLocal.setValue(p.getEquipoLocal());
+        cmbVisitante.setValue(p.getEquipoVisitante());
+        dpFecha.setValue(p.getFecha());
+        txtHora.setText(p.getHora().toString());
+        txtLugar.setText(p.getLugar());
+        cmbEstado.setValue(p.getEstado());
+        gestorResultado.silenciar(() -> {
+            if (p.getResultado() != null) {
+                txtGolesLocal.setText(String.valueOf(p.getResultado().getGolesLocal()));
+                txtGolesVisitante.setText(String.valueOf(p.getResultado().getGolesVisitante()));
+                cmbEstadoResultado.setValue(p.getResultado().getEstado());
+            } else {
+                txtGolesLocal.clear();
+                txtGolesVisitante.clear();
+                cmbEstadoResultado.getSelectionModel().clearSelection();
+            }
+        });
+    }
+
+    @Override
+    protected String describir(Partido p) {
+        return p.getNombreLocal() + " vs " + p.getNombreVisitante() + " (" + p.getFecha() + ")";
     }
 }

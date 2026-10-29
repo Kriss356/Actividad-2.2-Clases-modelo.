@@ -13,7 +13,7 @@ public class MenuController {
 
     @FXML private BorderPane raiz;
     @FXML private Label lblUsuario;
-    @FXML private Node btnCategorias, btnEquipos, btnJugadores, btnPartidos, btnPosiciones;
+    @FXML private Node btnCategorias, btnEquipos, btnJugadores, btnPartidos, btnPosiciones, btnAdministradores;
 
     @FXML
     private void initialize() {
@@ -24,6 +24,7 @@ public class MenuController {
         visible(btnEquipos, Sesion.esEquipos());
         visible(btnJugadores, Sesion.esEquipos());
         visible(btnPartidos, Sesion.esPartidos() || Sesion.esTorneo());
+        visible(btnAdministradores, Sesion.esTorneo());
         visible(btnPosiciones, true);
 
         if (Sesion.esEquipos()) mostrar("categoria");
@@ -36,6 +37,7 @@ public class MenuController {
     @FXML private void irJugadores() { mostrar("jugador"); }
     @FXML private void irPartidos() { mostrar("partido"); }
     @FXML private void irPosiciones() { mostrar("posicion"); }
+    @FXML private void irAdministradores() { mostrar("administrador"); }
 
     @FXML
     private void cerrarSesion() {

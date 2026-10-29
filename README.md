@@ -65,6 +65,18 @@ Para generar la documentación HTML: `javadoc -d docs -sourcepath src/main/java 
 
 Usuarios de prueba (contraseña `1234`): `admin.equipos`, `admin.partidos`, `admin.torneo`.
 
+## Validaciones y control de eventos (JavaFX)
+
+Todos los formularios (Categorías, Equipos, Jugadores, Partidos y Administradores) validan en tiempo real:
+
+- **Caracteres permitidos:** un filtro `KEY_TYPED` bloquea las teclas no válidas y un `TextFormatter` filtra lo que se pega.
+- **Mensajes bajo cada control:** cada campo tiene su propio `Label` de error (obligatorio, formato correcto, rango), que se actualiza con `textProperty()` al escribir, borrar o pegar.
+- **Validación completa:** los botones **Validar** y **Guardar** revisan todos los campos y, si son correctos, muestran un `Alert`. No se guarda, modifica ni elimina información.
+- **Estado de los botones:** al iniciar solo Nuevo, Validar y Limpiar están habilitados; Guardar se habilita cuando todo es válido; Editar y Eliminar solo con un registro seleccionado en la tabla (acciones visuales).
+
+Clases de apoyo en `util`: `Reglas`, `Filtros`, `CampoValidado` y `GestorFormulario`; el comportamiento común de los botones está en `controlador/FormularioBase`.
+Se cargan datos de demostración en memoria al iniciar para poder probar las tablas y los desplegables.
+
 ## Funcionalidades de la aplicación
 
 - Inicio de sesión y menú según el rol del administrador.
